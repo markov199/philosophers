@@ -3,6 +3,7 @@
 void ft_forks(t_philo *philo);
 t_ms ft_get_time();
 void ft_print_msg(t_philo *philo, char *str);
+void ft_is_dead(t_philo *philo);
 
 void ft_print_msg(t_philo *philo, char *str)
 {
