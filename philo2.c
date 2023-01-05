@@ -3,7 +3,11 @@
 void ft_forks(t_philo *philo);
 t_ms ft_get_time();
 void ft_print_msg(t_philo *philo, char *str);
+<<<<<<< HEAD
 void ft_exit(t_table *table);
+=======
+void ft_is_dead(t_philo *philo);
+>>>>>>> d5dfb059a98df534b14a19c6a71b8f45cd25ad11
 
 void ft_print_msg(t_philo *philo, char *str)
 {
