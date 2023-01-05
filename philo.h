@@ -35,7 +35,6 @@ typedef struct s_table{
     t_ms time_to_sleep;
     bool philo_dead;
     t_fork *forks;
-    t_queue *philo_queue;
     struct s_philo *philo;
     pthread_mutex_t mutex_print;
     pthread_mutex_t mutex_thread;

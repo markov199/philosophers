@@ -5,5 +5,7 @@
 # define INIT_FORK "FAILED TO INITIALISE FORK MUTEX\n"
 # define INIT_PRINT "Failed To Initialise Print Mutex\n"
 # define INIT_THREAD "Failed To Initialise Thread Mutex\n"
+# define MALLOC_FAIL "Malloc Failure\n"
+# define PHILO_DIED "Has Died"
 
 #endif

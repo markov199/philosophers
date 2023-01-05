@@ -3,6 +3,7 @@
 void ft_forks(t_philo *philo);
 t_ms ft_get_time();
 void ft_print_msg(t_philo *philo, char *str);
+void ft_exit(t_table *table);
 
 void ft_print_msg(t_philo *philo, char *str)
 {
@@ -10,13 +11,21 @@ void ft_print_msg(t_philo *philo, char *str)
 
     table = philo->table_data;
     pthread_mutex_lock(&(table->mutex_print));
-    printf("philo[%d]%s", philo->id, str);
+    printf("[%d]philo[%d]%s",philo->time_last_action, philo->id, str);
     usleep(10000);
     pthread_mutex_unlock(&(table->mutex_print));
 }
 void ft_think(t_philo *philo)
 {
-    philo->state = 0;
+    t_table *table;
+
+    table = philo->table_data;
+    if (philo->state != 1)
+    {
+        philo->state = 1;
+        philo->time_last_action = ft_get_time() - table->start_time;
+        ft_print_msg(philo, "is thinking\n");
+    }
     usleep (100);
     ft_forks(philo);
 }
@@ -27,8 +36,9 @@ void ft_sleep(t_philo *philo)
 
     table = philo->table_data;
     philo->state = 4;
+    philo->time_last_action = ft_get_time() - table->start_time;
     ft_print_msg(philo, "is sleeping\n");
-    usleep(table->time_to_sleep / 1000);
+    usleep(table->time_to_sleep * 1000);
     ft_forks(philo);
 }
 
@@ -40,8 +50,10 @@ void ft_eat(t_philo *philo)
     table = philo->table_data;
     philo->state = 3;
     philo->meals_eaten++;
+    philo->time_last_action = ft_get_time() - table->start_time;
+    philo->last_meal = philo->time_last_action;
     ft_print_msg(philo, "is eating\n");
-    usleep(table->time_to_eat / 1000);
+    usleep(table->time_to_eat * 1000);
     ft_forks(philo);
 }
 
@@ -50,6 +62,14 @@ void ft_forks(t_philo *philo)
     t_table *table;
 
     table = philo->table_data;
+    // if (ft_get_time() - philo->last_meal >= table->time_to_die)
+    // {
+    //     philo->time_last_action = ft_get_time() - table->start_time ;
+    //     printf("time %d -  > %d\n",ft_get_time() - philo->last_meal,table->time_to_die );
+    //     table->philo_dead = 1;
+    //     ft_print_msg(philo, PHILO_DIED);
+    //     return;
+    // }
     if ( philo->has_fork == false)
     {
         pthread_mutex_lock(&table->mutex_thread);
@@ -57,22 +77,16 @@ void ft_forks(t_philo *philo)
         {
             table->forks[philo->id -1].used = 1;
             table->forks[philo->id % table->num_philo].used = 1;
-            pthread_mutex_unlock(&table->mutex_thread);
             philo->has_fork = 1;
             philo->state = 2;
+            philo->time_last_action = ft_get_time() - table->start_time;
             ft_print_msg(philo, "has taken forks\n");
-            philo->time_last_action = ft_get_time() - philo->time_start;
+            pthread_mutex_unlock(&table->mutex_thread);
             ft_eat(philo);
         }
         else
         {
             pthread_mutex_unlock(&table->mutex_thread);
-            if (philo->state != 1)
-            {
-                // printf("philo %d->has forks = %d and philostate is %d\n", philo->id,philo->has_fork, philo->state);
-                philo->state = 1;
-                ft_print_msg(philo, "is thinking\n");
-            }
             ft_think(philo);
         }
     }
@@ -81,14 +95,10 @@ void ft_forks(t_philo *philo)
         pthread_mutex_lock(&table->mutex_thread);
         table->forks[philo->id -1].used = 0;
         table->forks[philo->id % table->num_philo].used = 0;
-        pthread_mutex_unlock(&table->mutex_thread);
         philo->has_fork = 0;
-        if (table->max_meals)
-            if (table->max_meals <= philo->meals_eaten )
-               {
-                    ft_print_msg(philo, "has had max meals\n");
-                    return ;
-               }
+        pthread_mutex_unlock(&table->mutex_thread);
+        if (table->max_meals <= philo->meals_eaten )
+            return;
         ft_sleep(philo);
     }
 }
@@ -181,6 +191,7 @@ void ft_init_threads(t_table *table)
     while (i < table->num_philo)
     {
         philo[i].time_start = ft_get_time();
+        philo[i].last_meal = philo[i].time_start;
         pthread_create(&philo[i].threads, NULL, &routine, &philo[i]);
         // usleep(1000);
         i++;
@@ -218,9 +229,8 @@ void ft_init_philo(t_table *table, t_error *error)
 t_ms ft_get_time()
 {
     struct timeval time;
-
     gettimeofday(&time, NULL);
-    return ((t_ms)time.tv_sec / 1000 + time.tv_usec * 1000);
+    return ((t_ms)time.tv_sec * 1000 + time.tv_usec / 1000);
 }
 
 
@@ -264,39 +274,20 @@ void ft_exit(t_table *table)
 
 int main(int ac, char *av[])
 {
-//    int i;
    t_table *table;
    t_error errormsg;
-//    int next;
-
-//    i = 0;
    if(ac == 5 || ac == 6)
    { 
-    errormsg = NULL;
-    table = ft_init_table(ac, av, &errormsg);
-    ft_init_threads(table);
-    if (errormsg)
+        errormsg = NULL;
+        table = ft_init_table(ac, av, &errormsg);
+        ft_init_threads(table);
+        if (errormsg || table->philo_dead)
         {
             ft_exit(table);
             printf("170%s", errormsg);
             return (0);
         }
-    // printf("num of philos = %d\n", table->num_philo);
-    // printf("time to die = %d\n", table->time_to_die);
-    // printf("time to eat = %d\n", table->time_to_eat);
-    // printf("time to sleep = %d\n", table->time_to_sleep);
-    // printf("start time = %u\n", table->start_time);
-
-    // while (i < table->num_philo)
-    // {
-    //     printf("philo%d data\n", table->philo[i].id);
-    //     printf("meals eaten %d \n", table->philo[i].meals_eaten);
-    //     printf("state%d \n", table->philo[i].state);
-    //     printf("last meal%d \n", table->philo[i].last_meal);
-    //     i++;
-    // }
+    }
     return (0);
-
-   }
 }
     
