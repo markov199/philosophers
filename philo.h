@@ -39,6 +39,7 @@ typedef struct s_table{
     struct s_philo *philo;
     pthread_mutex_t mutex_print;
     pthread_mutex_t mutex_thread;
+	pthread_mutex_t	mutex_check;
 }   t_table;
 
 typedef struct s_philo{
