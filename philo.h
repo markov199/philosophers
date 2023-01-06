@@ -16,6 +16,7 @@ typedef char            *t_error;
 
 typedef struct s_fork{
     pthread_mutex_t fork_mutex;
+	int priority;
     bool used;
 }   t_fork;
 
