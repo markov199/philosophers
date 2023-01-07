@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   actions.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkovoor <mkovoor@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dfurneau <dfurneau@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/07 12:11:08 by mkovoor           #+#    #+#             */
-/*   Updated: 2023/01/07 13:15:34 by mkovoor          ###   ########.fr       */
+/*   Updated: 2023/01/07 19:15:54 by dfurneau         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,11 +14,9 @@
 
 void	ft_think(t_philo *philo)
 {
-	t_table	*table;
 
 	if (ft_check_dead(philo) == -1)
 		return ;
-	table = philo->table_data;
 	if (philo->state != 1 && philo->state != 0)
 	{
 		philo->state = 1;
@@ -51,9 +49,9 @@ void	ft_eat(t_philo *philo)
 	philo->state = 3;
 	philo->meals_eaten++;
 	philo->time_last_action = ft_get_time();
+	philo->last_meal = philo->time_last_action;
 	ft_print_msg(philo, "is eating\n");
 	ft_usleep(philo, table->time_to_eat);
-	philo->last_meal = ft_get_time();
 	ft_drop_forks(philo);
 	if (table->max_meals - philo->meals_eaten == 0)
 		return ;
@@ -73,7 +71,7 @@ int	ft_check_dead(t_philo *philo)
 		pthread_mutex_unlock(&table->death_mutex);
 		return (-1);
 	}
-	if ((time - philo->last_meal) >= table->time_to_die)
+	if ((time - philo->last_meal) > table->time_to_die)
 	{
 		table->philo_dead = true;
 		philo->time_last_action = ft_get_time();

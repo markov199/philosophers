@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkovoor <mkovoor@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dfurneau <dfurneau@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/07 11:55:15 by mkovoor           #+#    #+#             */
-/*   Updated: 2023/01/07 13:09:29 by mkovoor          ###   ########.fr       */
+/*   Updated: 2023/01/07 19:07:44 by dfurneau         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -116,7 +116,10 @@ int	main(int ac, char *av[])
 		errormsg = NULL;
 		ft_init_table(table, ac, av, &errormsg);
 		if (errormsg)
+		{
+			ft_exit( table);
 			return (0);
+		}
 		ft_init_threads(table);
 		pthread_mutex_destroy(&table->mutex_print);
 		pthread_mutex_destroy(&table->mutex_thread);

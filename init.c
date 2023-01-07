@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mkovoor <mkovoor@student.42.fr>            +#+  +:+       +#+        */
+/*   By: dfurneau <dfurneau@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/07 12:13:39 by mkovoor           #+#    #+#             */
-/*   Updated: 2023/01/07 13:29:04 by mkovoor          ###   ########.fr       */
+/*   Updated: 2023/01/07 19:13:40 by dfurneau         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,9 +63,9 @@ void	ft_init_threads(t_table *table)
 	philo = table->philo;
 	while (i < table->num_philo)
 	{
-		philo[i].time_start = ft_get_time();
+		philo[i].last_meal = ft_get_time();
 		pthread_create(&philo[i].threads, NULL, &routine, (void *)&philo[i]);
-		usleep(100);
+		// usleep(100);
 		i++;
 	}
 	i = 0;
