@@ -6,7 +6,7 @@
 #    By: mkovoor <mkovoor@student.42.fr>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2023/01/06 16:53:13 by mkovoor           #+#    #+#              #
-#    Updated: 2023/01/06 16:53:37 by mkovoor          ###   ########.fr        #
+#    Updated: 2023/01/07 12:18:33 by mkovoor          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -15,10 +15,11 @@ NAME		= philo
 
 CC			= gcc
 CFLAGS		= -g3 -Wall -Wextra -Werror -pthread -fsanitize=address
+#CFLAGS		= -g3 -pthread
 #CFLAGS		= -g -Wall -Wextra -Werror -pthread
 RM			= rm -rf
 
-SRCS		= philo2.c 
+SRCS		= philo.c utils.c actions.c init.c
 				
 
 OBJS		= $(SRCS:.c=.o)
