@@ -16,16 +16,9 @@ typedef char            *t_error;
 
 typedef struct s_fork{
     pthread_mutex_t fork_mutex;
-	int priority;
+	int wait;
     bool used;
 }   t_fork;
-
-typedef struct s_queue{
-    pthread_mutex_t queue_mutex;
-    int *priority_queue;
-    int queue_count;
-} t_queue;
-
 
 typedef struct s_table{
     int num_philo;

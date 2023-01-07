@@ -91,24 +91,27 @@ void ft_pick_forks(t_philo *philo)
 
     table = philo->table_data;
 	if (ft_check_dead(philo) == -1)
-		return ;
-    if ( philo->has_fork == false) // to pick forks
-    {
-        
-		pthread_mutex_lock(&table->mutex_thread);
-        if(table->forks[philo->id -1].used == 0 && table->forks[philo->id % table->num_philo].used == 0 )
-        {
-            table->forks[philo->id -1].used = 1;
-            table->forks[philo->id % table->num_philo].used = 1;
-            philo->has_fork = 1;
-            philo->state = 2;
-            philo->time_last_action = ft_get_time();
-            pthread_mutex_unlock(&table->mutex_thread);
-            ft_print_msg(philo, "has taken forks\n");
-        }
-        else
-            pthread_mutex_unlock(&table->mutex_thread);
-    }
+		return ;      
+	pthread_mutex_lock(&table->mutex_thread);
+	if(table->forks[philo->id -1].used != 0 
+		|| table->forks[philo->id % table->num_philo].used != 0)
+		pthread_mutex_unlock(&table->mutex_thread);
+	else
+	{
+		if(table->forks[philo->id - 1].wait != philo->id 
+			&& table->forks[philo->id % table->num_philo].wait != philo->id)
+		{
+			table->forks[philo->id -1].used = 1;
+			table->forks[philo->id % table->num_philo].used = 1;
+			philo->has_fork = 1;
+			philo->state = 2;
+			philo->time_last_action = ft_get_time();
+			pthread_mutex_unlock(&table->mutex_thread);
+			ft_print_msg(philo, "has taken forks\n");
+		}
+		else
+			pthread_mutex_unlock(&table->mutex_thread);
+	}
 }
 
 void ft_drop_forks(t_philo *philo)
@@ -122,7 +125,10 @@ void ft_drop_forks(t_philo *philo)
     {  		
 		pthread_mutex_lock(&table->mutex_thread);
         table->forks[philo->id -1].used = 0;
+		table->forks[philo->id - 1].wait = philo->id;
         table->forks[philo->id % table->num_philo].used = 0;
+        table->forks[philo->id % table->num_philo].wait = philo->id;
+
         philo->has_fork = 0;
         pthread_mutex_unlock(&table->mutex_thread);        
     }
@@ -160,6 +166,8 @@ void *routine(void *args)
 
     philo = (t_philo *)args;
 	table = philo->table_data;
+	if (philo->id % 2 != 0)
+		ft_sleep(philo);
 	while((table->philo_dead == false) && (table->max_meals - philo->meals_eaten != 0))
 	{
     	ft_pick_forks(philo);
@@ -274,13 +282,13 @@ void ft_init_threads(t_table *table)
     }
 }
 
-
 void ft_init_philo(t_table *table, t_error *error)
 {
     t_philo *philo;
     int i;
 
     i = 0;
+	(void)error;
     philo = calloc(sizeof(t_philo), table->num_philo);
     while (i < table->num_philo)
     {
@@ -312,9 +320,10 @@ t_table *ft_init_table(t_table *table, int ac, char *av[], t_error *error)
     
     ft_get_args(table, ac, av, error);
     if (*error)
-       {
-        return (table);
-       }
+	{
+		printf("%s", *error);
+	return (table);
+	}
     table->philo_dead = false;
     table->start_time = ft_get_time();
 
@@ -331,15 +340,12 @@ t_table *ft_init_table(t_table *table, int ac, char *av[], t_error *error)
 
 void ft_exit(t_table *table)
 {
-    // int i;
-
-    // i = 0;
-    // pthread_mutex_destroy(&table->mutex_print);
-    // free(table->forks);
-    // free(table->philo);
-    // if (table)
-    //     free (table);
-    printf("136 exiting\n ");
+	if (table->forks)
+		free(table->forks);
+    if (table->philo)
+		free(table->philo);
+    if (table)
+        free (table);
 }
 
 int main(int ac, char *av[])
@@ -352,15 +358,17 @@ int main(int ac, char *av[])
    { 
         errormsg = NULL;
         ft_init_table(table, ac, av, &errormsg);
-        ft_init_threads(table);
-        if (errormsg || table->philo_dead)
-        {
-            //ft_exit(table);
-            printf("170%s", errormsg);
+        if (errormsg) 
             return (0);
-        }
-		//free all and destroy init
+        ft_init_threads(table);
+		pthread_mutex_destroy(&table->mutex_print);
+		pthread_mutex_destroy(&table->mutex_thread);
+		pthread_mutex_destroy(&table->mutex_check);
+
     }
+	else
+		write (2, "Invalid number of arguments\n", 28);
+    ft_exit(table);
     return (0);
 }
 
