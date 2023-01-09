@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dfurneau <dfurneau@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mkovoor <mkovoor@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/07 12:13:39 by mkovoor           #+#    #+#             */
-/*   Updated: 2023/01/07 19:13:40 by dfurneau         ###   ########.fr       */
+/*   Updated: 2023/01/09 15:06:02 by mkovoor          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,10 +40,11 @@ void	ft_init_forks(t_table *table, t_error *error)
 	int	i;
 
 	i = 0;
-	table->forks = calloc(sizeof(t_fork), table->num_philo);
+	table->forks = ft_calloc(sizeof(t_fork), table->num_philo);
 	while (i < table->num_philo)
 	{
 		table->forks[i].used = false;
+		table->forks[i].wait = -1;
 		if (pthread_mutex_init(&table->forks[i++].fork_mutex, NULL))
 		{
 			while (i)
@@ -61,11 +62,11 @@ void	ft_init_threads(t_table *table)
 
 	i = 0;
 	philo = table->philo;
+	table->start_time = ft_get_time();
 	while (i < table->num_philo)
 	{
-		philo[i].last_meal = ft_get_time();
 		pthread_create(&philo[i].threads, NULL, &routine, (void *)&philo[i]);
-		// usleep(100);
+		usleep(100);
 		i++;
 	}
 	i = 0;
@@ -88,10 +89,10 @@ void	ft_init_philo(t_table *table, t_error *error)
 	{
 		philo[i].id = i + 1;
 		philo[i].meals_eaten = 0;
-		philo[i].state = 0;
 		philo[i].has_fork = false;
+		philo[i].state = 0;
+		philo[i].last_meal = 0;
 		philo[i].table_data = table;
-		philo[i].last_meal = table->start_time;
 		philo[i].time_start = 0;
 		philo[i].time_last_action = 0;
 		i++;
@@ -109,7 +110,7 @@ t_table	*ft_init_table(t_table *table, int ac, char *av[], t_error *error)
 		return (table);
 	}
 	table->philo_dead = false;
-	table->start_time = ft_get_time();
+	// table->start_time = ft_get_time();
 	if (pthread_mutex_init(&table->mutex_print, NULL))
 		*error = INIT_PRINT;
 	if (pthread_mutex_init(&table->mutex_thread, NULL))

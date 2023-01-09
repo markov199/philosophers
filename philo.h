@@ -6,7 +6,7 @@
 /*   By: mkovoor <mkovoor@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/07 11:54:45 by mkovoor           #+#    #+#             */
-/*   Updated: 2023/01/07 13:39:40 by mkovoor          ###   ########.fr       */
+/*   Updated: 2023/01/09 14:57:12 by mkovoor          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,17 +60,19 @@ typedef struct s_philo{
 
 /*utilities*/
 
-void	ft_print_msg(t_philo *philo, char *str);
+void	ft_print_msg(t_philo *philo, char *str, t_ms time);
 int		ft_atoi(int *number, char *str, t_error *error);
-void	ft_usleep(t_philo *philo, t_ms time);
+int		ft_usleep(t_philo *philo, t_ms time);
+void	*ft_calloc(size_t nmemb, size_t size);
+void	*ft_memset(void *s, int c, size_t n);
 t_ms	ft_get_time(void);
 
 /*action functions*/
-void	ft_pick_forks(t_philo *philo);
-void	ft_drop_forks(t_philo *philo);
-void	ft_think(t_philo *philo);
-void	ft_sleep(t_philo *philo);
-void	ft_eat(t_philo *philo);
+int		ft_pick_forks(t_philo *philo);
+int		ft_drop_forks(t_philo *philo);
+int		ft_think(t_philo *philo);
+int		ft_sleep(t_philo *philo);
+int		ft_eat(t_philo *philo);
 
 /*init and thread functions*/
 

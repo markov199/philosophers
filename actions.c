@@ -3,65 +3,76 @@
 /*                                                        :::      ::::::::   */
 /*   actions.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: dfurneau <dfurneau@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mkovoor <mkovoor@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/07 12:11:08 by mkovoor           #+#    #+#             */
-/*   Updated: 2023/01/07 19:15:54 by dfurneau         ###   ########.fr       */
+/*   Updated: 2023/01/09 15:12:36 by mkovoor          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include"philo.h"
 
-void	ft_think(t_philo *philo)
+int	ft_think(t_philo *philo)
 {
-
+	t_ms	time;
+	
 	if (ft_check_dead(philo) == -1)
-		return ;
+		return (-1);
 	if (philo->state != 1 && philo->state != 0)
 	{
 		philo->state = 1;
 		philo->time_last_action = ft_get_time();
-		ft_print_msg(philo, "is thinking\n");
+		time = (ft_get_time() - philo->table_data->start_time);
+		ft_print_msg(philo, "is thinking\n", time);
 	}
-	ft_usleep(philo, 1);
+	usleep(100);
+	return (0);
 }
 
-void	ft_sleep(t_philo *philo)
+int	ft_sleep(t_philo *philo)
 {
+	t_ms	time;
 	t_table	*table;
 
-	if (ft_check_dead(philo) == -1)
-		return ;
 	table = philo->table_data;
 	philo->state = 4;
 	philo->time_last_action = ft_get_time();
-	ft_print_msg(philo, "is sleeping\n");
-	ft_usleep(philo, table->time_to_sleep);
+	if (ft_check_dead(philo) == -1)
+		return(-1) ;
+	time = (ft_get_time() - philo->table_data->start_time);
+	ft_print_msg(philo, "is sleeping\n", time);
+	if (ft_usleep(philo, table->time_to_sleep) == -1)
+		return (-1);
+	return (0);
 }
 
-void	ft_eat(t_philo *philo)
+int	ft_eat(t_philo *philo)
 {
 	t_table	*table;
+	t_ms	time;
 
-	if (ft_check_dead(philo) == -1)
-		return ;
 	table = philo->table_data;
 	philo->state = 3;
 	philo->meals_eaten++;
-	philo->time_last_action = ft_get_time();
-	philo->last_meal = philo->time_last_action;
-	ft_print_msg(philo, "is eating\n");
-	ft_usleep(philo, table->time_to_eat);
+	philo->last_meal = ft_get_time();
+	philo->time_last_action = philo->last_meal;
+	if (ft_check_dead(philo) == -1)
+		return(-1) ;
+	time = (ft_get_time() - philo->table_data->start_time);
+	ft_print_msg(philo, "is eating\n", time);
+	if (ft_usleep(philo, table->time_to_eat) == -1)
+		return(-1);	
 	ft_drop_forks(philo);
 	if (table->max_meals - philo->meals_eaten == 0)
-		return ;
-	ft_sleep(philo);
+		return(-1) ;
+	return (0);
 }
 
 int	ft_check_dead(t_philo *philo)
 {
 	t_table	*table;
 	t_ms	time;
+	t_ms	time2;
 
 	table = philo->table_data;
 	time = ft_get_time();
@@ -76,7 +87,8 @@ int	ft_check_dead(t_philo *philo)
 		table->philo_dead = true;
 		philo->time_last_action = ft_get_time();
 		pthread_mutex_unlock(&table->death_mutex);
-		ft_print_msg(philo, "is dead\n");
+		time2 = (ft_get_time() - philo->table_data->start_time);
+		ft_print_msg(philo, "is dead\n", time2);
 		return (-1);
 	}
 	pthread_mutex_unlock(&table->death_mutex);

@@ -6,44 +6,51 @@
 /*   By: mkovoor <mkovoor@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/07 12:06:07 by mkovoor           #+#    #+#             */
-/*   Updated: 2023/01/07 13:50:11 by mkovoor          ###   ########.fr       */
+/*   Updated: 2023/01/09 15:03:59 by mkovoor          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include"philo.h"
 
-void	ft_print_msg(t_philo *philo, char *str)
+void	ft_print_msg(t_philo *philo, char *str, t_ms time)
 {
-	t_table	*table;
-	t_ms	time;
-
-	table = philo->table_data;
-	time = philo->time_last_action - table->start_time;
-	pthread_mutex_lock(&(table->mutex_print));
-	printf("[%d]philo[%d]%s", time, philo->id, str);
-	pthread_mutex_unlock(&(table->mutex_print));
+	pthread_mutex_lock(&philo->table_data->mutex_print);
+	if (philo->state == 1)
+		printf("\033[32m[%u] %d %s\033[0m", time, philo->id, str);
+	else if (philo->state == 2)
+		printf("\033[35m[%u] %d %s\033[0m", time, philo->id, str);
+	else if (philo->state == 3)
+		printf("\033[33m[%u] %d %s\033[0m", time, philo->id, str);
+	else if (philo->state == 4)
+		printf("\033[31m[%u] %d %s\033[0m", time, philo->id, str);
+	else if (philo->state == 5)
+		printf("\033[34m[%u] %d %s\033[0m", time, philo->id, str);
+	else
+		printf("[%u] %d %s", time, philo->id, str);
+	pthread_mutex_unlock(&philo->table_data->mutex_print);
 }
 
-void	ft_usleep(t_philo *philo, t_ms sleep_time)
+int	ft_usleep(t_philo *philo, t_ms sleep_time)
 {
-	t_table	*table;
-	t_ms	time;
+	t_ms	t;
 
-	table = philo->table_data;
-	time = ft_get_time();
+	t = ft_get_time();
 	while (1)
 	{
-		pthread_mutex_lock(&table->death_mutex);
-		if (table->philo_dead == true)
+		pthread_mutex_lock(&philo->table_data->mutex_check);
+		if (philo->table_data->philo_dead == true)
 		{
-			pthread_mutex_unlock(&table->death_mutex);
-			return ;
+			pthread_mutex_unlock(&philo->table_data->mutex_check);
+			return (-1);
 		}
-		pthread_mutex_unlock(&table->death_mutex);
-		ft_check_dead(philo);
-		if ((ft_get_time() - time) >= sleep_time)
-			return ;
+		pthread_mutex_unlock(&philo->table_data->mutex_check);
+		if (ft_check_dead(philo) == -1)
+			return (-1);
+		if ((ft_get_time() - t) >= sleep_time)
+			return (0);
+		usleep(100);
 	}
+	return (0);
 }
 
 int	ft_atoi(int *number, char *str, t_error *error)
