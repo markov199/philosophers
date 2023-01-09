@@ -6,7 +6,7 @@
 /*   By: mkovoor <mkovoor@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/07 12:11:08 by mkovoor           #+#    #+#             */
-/*   Updated: 2023/01/09 15:12:36 by mkovoor          ###   ########.fr       */
+/*   Updated: 2023/01/09 16:30:24 by mkovoor          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 int	ft_think(t_philo *philo)
 {
 	t_ms	time;
-	
+
 	if (ft_check_dead(philo) == -1)
 		return (-1);
 	if (philo->state != 1 && philo->state != 0)
@@ -38,7 +38,7 @@ int	ft_sleep(t_philo *philo)
 	philo->state = 4;
 	philo->time_last_action = ft_get_time();
 	if (ft_check_dead(philo) == -1)
-		return(-1) ;
+		return (-1);
 	time = (ft_get_time() - philo->table_data->start_time);
 	ft_print_msg(philo, "is sleeping\n", time);
 	if (ft_usleep(philo, table->time_to_sleep) == -1)
@@ -57,14 +57,14 @@ int	ft_eat(t_philo *philo)
 	philo->last_meal = ft_get_time();
 	philo->time_last_action = philo->last_meal;
 	if (ft_check_dead(philo) == -1)
-		return(-1) ;
+		return (-1);
 	time = (ft_get_time() - philo->table_data->start_time);
 	ft_print_msg(philo, "is eating\n", time);
 	if (ft_usleep(philo, table->time_to_eat) == -1)
-		return(-1);	
+		return (-1);
 	ft_drop_forks(philo);
 	if (table->max_meals - philo->meals_eaten == 0)
-		return(-1) ;
+		return (-1);
 	return (0);
 }
 

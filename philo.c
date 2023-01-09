@@ -6,24 +6,15 @@
 /*   By: mkovoor <mkovoor@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/07 11:55:15 by mkovoor           #+#    #+#             */
-/*   Updated: 2023/01/09 15:25:07 by mkovoor          ###   ########.fr       */
+/*   Updated: 2023/01/09 16:34:58 by mkovoor          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include"philo.h"
 
-void	ft_print_msg(t_philo *philo, char *str, t_ms time);
-int		ft_pick_forks(t_philo *philo);
-int		ft_drop_forks(t_philo *philo);
-int		ft_check_dead(t_philo *philo);
-int		ft_usleep(t_philo *philo, t_ms time);
-void	ft_exit(t_table *table);
-t_ms	ft_get_time(void);
-
 int	ft_pick_forks(t_philo *philo)
 {
 	t_table	*table;
-	t_ms	time;
 
 	table = philo->table_data;
 	pthread_mutex_lock(&table->mutex_thread);
@@ -41,14 +32,13 @@ int	ft_pick_forks(t_philo *philo)
 			philo->time_last_action = ft_get_time();
 			if (ft_check_dead(philo) == -1)
 				return (-1);
-			time = (ft_get_time() - philo->table_data->start_time);
-			ft_print_msg(philo, "has taken forks\n", time);
+			ft_print_msg(philo, "has taken fork\n", ft_get_time() - \
+			philo->table_data->start_time);
 			return (1);
 		}
-		else
-			pthread_mutex_unlock(&table->mutex_thread);
 	}
-	pthread_mutex_unlock(&table->mutex_thread);
+	else
+		pthread_mutex_unlock(&table->mutex_thread);
 	return (0);
 }
 
@@ -67,7 +57,7 @@ int	ft_drop_forks(t_philo *philo)
 		philo->has_fork = 0;
 		pthread_mutex_unlock(&table->mutex_thread);
 	}
-	return(0);
+	return (0);
 }
 
 void	*routine(void *args)
@@ -78,18 +68,16 @@ void	*routine(void *args)
 	philo->last_meal = ft_get_time();
 	while (philo->table_data->max_meals - philo->meals_eaten != 0)
 	{
-		// if (ft_check_dead(philo) == -1)
-		// 	return (NULL);
 		if (ft_pick_forks(philo) == 1)
 		{
 			if (ft_eat(philo) == -1)
-				return (NULL);		
+				return (NULL);
 		}
 		else
 		{
 			if (ft_think(philo) == -1)
 				return (NULL);
-			continue;
+			continue ;
 		}
 		if (ft_sleep(philo) == -1)
 			return (NULL);

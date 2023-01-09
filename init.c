@@ -6,7 +6,7 @@
 /*   By: mkovoor <mkovoor@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/07 12:13:39 by mkovoor           #+#    #+#             */
-/*   Updated: 2023/01/09 15:06:02 by mkovoor          ###   ########.fr       */
+/*   Updated: 2023/01/09 16:28:13 by mkovoor          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,7 +110,6 @@ t_table	*ft_init_table(t_table *table, int ac, char *av[], t_error *error)
 		return (table);
 	}
 	table->philo_dead = false;
-	// table->start_time = ft_get_time();
 	if (pthread_mutex_init(&table->mutex_print, NULL))
 		*error = INIT_PRINT;
 	if (pthread_mutex_init(&table->mutex_thread, NULL))
