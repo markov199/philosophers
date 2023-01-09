@@ -6,13 +6,13 @@
 /*   By: mkovoor <mkovoor@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/07 11:55:15 by mkovoor           #+#    #+#             */
-/*   Updated: 2023/01/09 16:34:58 by mkovoor          ###   ########.fr       */
+/*   Updated: 2023/01/09 17:44:02 by mkovoor          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include"philo.h"
 
-int	ft_pick_forks(t_philo *philo)
+int	ft_check_forks(t_philo *philo)
 {
 	t_table	*table;
 
@@ -24,18 +24,16 @@ int	ft_pick_forks(t_philo *philo)
 		if (table->forks[philo->id - 1].wait != philo->id
 			&& table->forks[philo->id % table->num_philo].wait != philo->id)
 		{
-			table->forks[philo->id -1].used = 1;
-			table->forks[philo->id % table->num_philo].used = 1;
+			ft_pick_forks(philo);
 			pthread_mutex_unlock(&table->mutex_thread);
-			philo->has_fork = 1;
-			philo->state = 2;
-			philo->time_last_action = ft_get_time();
 			if (ft_check_dead(philo) == -1)
 				return (-1);
-			ft_print_msg(philo, "has taken fork\n", ft_get_time() - \
-			philo->table_data->start_time);
+			ft_print_msg(philo, "taken fork\n", ft_get_time() - \
+			table->start_time);
 			return (1);
 		}
+		else
+			pthread_mutex_unlock(&table->mutex_thread);
 	}
 	else
 		pthread_mutex_unlock(&table->mutex_thread);
@@ -68,7 +66,7 @@ void	*routine(void *args)
 	philo->last_meal = ft_get_time();
 	while (philo->table_data->max_meals - philo->meals_eaten != 0)
 	{
-		if (ft_pick_forks(philo) == 1)
+		if (ft_check_forks(philo) == 1)
 		{
 			if (ft_eat(philo) == -1)
 				return (NULL);

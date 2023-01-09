@@ -6,7 +6,7 @@
 /*   By: mkovoor <mkovoor@student.42.fr>            +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/07 12:06:07 by mkovoor           #+#    #+#             */
-/*   Updated: 2023/01/09 15:03:59 by mkovoor          ###   ########.fr       */
+/*   Updated: 2023/01/09 17:44:32 by mkovoor          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,13 +37,13 @@ int	ft_usleep(t_philo *philo, t_ms sleep_time)
 	t = ft_get_time();
 	while (1)
 	{
-		pthread_mutex_lock(&philo->table_data->mutex_check);
+		pthread_mutex_lock(&philo->table_data->death_mutex);
 		if (philo->table_data->philo_dead == true)
 		{
-			pthread_mutex_unlock(&philo->table_data->mutex_check);
+			pthread_mutex_unlock(&philo->table_data->death_mutex);
 			return (-1);
 		}
-		pthread_mutex_unlock(&philo->table_data->mutex_check);
+		pthread_mutex_unlock(&philo->table_data->death_mutex);
 		if (ft_check_dead(philo) == -1)
 			return (-1);
 		if ((ft_get_time() - t) >= sleep_time)
@@ -87,4 +87,25 @@ t_ms	ft_get_time(void)
 
 	gettimeofday(&time, NULL);
 	return ((t_ms)time.tv_sec * 1000 + time.tv_usec / 1000);
+}
+
+void	ft_pick_forks(t_philo *philo)
+{
+	t_table	*table;
+	int		fork1;
+	int		fork2;
+
+	table = philo->table_data;
+	fork1 = philo->id - 1;
+	fork2 = philo->id % table->num_philo;
+	pthread_mutex_lock(&table->forks[fork1].fork_mutex);
+	table->forks[fork1].used = 1;
+	pthread_mutex_unlock(&table->forks[fork1].fork_mutex);
+	pthread_mutex_lock(&table->forks[fork2].fork_mutex);
+	table->forks[fork2].used = 1;
+	pthread_mutex_unlock(&table->forks[fork2].fork_mutex);
+	philo->has_fork = 1;
+	philo->state = 2;
+	philo->time_last_action = ft_get_time();
+	return ;
 }
